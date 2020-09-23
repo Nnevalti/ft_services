@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        imagePullPolicy: Never
+        env:
+          - name: USER
+            valueFrom:
+              secretKeyRef:
+                name: k8s-secret
+                key: ssh_user
+          - name: PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: k8s-secret
+                key: ssh_password
+        livenessProbe:
+          exec:
+            command:
+            - /bin/ash
+            - /srcs/liveness.sh
+          initialDelaySeconds: 15
+          periodSeconds: 3
+        ports:
+        - containerPort: 22
+        - containerPort: 80
+        - containerPort: 443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  type: LoadBalancer
+  ports:
+  - name: ssh
+    port: 22
+    targetPort: 22
+    protocol: TCP
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 443
+    protocol: TCP
+  selector:
+    app: nginx

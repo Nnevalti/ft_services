@@ -14,6 +14,7 @@ RUN wget https://wordpress.org/latest.tar.gz \
 && mv wordpress/ www/
 
 ADD ./setup.sh 			/srcs/setup.sh
+ADD ./liveness.sh		/srcs/liveness.sh
 
 EXPOSE 5050
 

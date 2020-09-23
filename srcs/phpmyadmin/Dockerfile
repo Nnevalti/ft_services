@@ -16,7 +16,7 @@ RUN wget http://files.directadmin.com/services/all/phpMyAdmin/phpMyAdmin-5.0.2-a
 
 ADD ./setup.sh 				/srcs/setup.sh
 ADD ./config.inc.php		/www/phpmyadmin
-//ADD ./livenessprobe.sh		/srcs/livenessprobe.sh
+ADD ./liveness.sh			/srcs/liveness.sh
 
 EXPOSE 5000
 

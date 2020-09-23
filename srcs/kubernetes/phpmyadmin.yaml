@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: phpmyadmin
-        image: alpine_phpmyadmin
+        image: phpmyadmin
         imagePullPolicy: Never
         env:
         - name: MYSQL_IP
@@ -24,7 +24,7 @@ spec:
           exec:
             command:
             - /bin/ash
-            - /srcs/livenessprobe.sh
+            - /srcs/liveness.sh
           initialDelaySeconds: 5
           periodSeconds: 3
         ports:

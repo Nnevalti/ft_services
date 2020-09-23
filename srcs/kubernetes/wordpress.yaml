@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: wordpress
-        image: alpine_wordpress
+        image: wordpress
         imagePullPolicy: Never
         env:
         - name: WP_DB_NAME
@@ -39,7 +39,7 @@ spec:
           exec:
             command:
             - /bin/ash
-            - /srcs/livenessprobe.sh
+            - /srcs/liveness.sh
           initialDelaySeconds: 5
           periodSeconds: 3
         ports:

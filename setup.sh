@@ -5,52 +5,54 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 SET='\033[0m'
 
-# move docker to goinfre
-# echo "${YELLOW}🔄 Moving docker to goinfre...${SET}"
-# rm -rf ~/Library/Containers/com.docker.docker ~/.docker
-# mkdir -p /Volumes/Storage/goinfre/$USER/docker/{com.docker.docker,.docker}
-# ln -sf /Volumes/Storage/goinfre/$USER/docker/com.docker.docker ~/Library/Containers/com.docker.docker
-# ln -sf /Volumes/Storage/goinfre/$USER/docker/.docker ~/.docker
-# echo "${GREEN}${BOLD}✅️ Done !${SET}"
-
 export MINIKUBE_HOME=/goinfre/$USER/
+
+# move docker to goinfre
+echo "${YELLOW}🔄 Moving docker to goinfre...${SET}"
+rm -rf ~/Library/Containers/com.docker.docker ~/.docker
+mkdir -p /Volumes/Storage/goinfre/$USER/docker/{com.docker.docker,.docker}
+ln -sf /Volumes/Storage/goinfre/$USER/docker/com.docker.docker ~/Library/Containers/com.docker.docker
+ln -sf /Volumes/Storage/goinfre/$USER/docker/.docker ~/.docker
+echo "${GREEN}✅️ Done !${SET}"
+
 
 # Start the cluster and install addons
 if [ $(minikube status | grep -c "Running") == 0 ]
 then
-	echo "${YELLOW}${BOLD}Starting Minikube...${SET}"
+	echo "${YELLOW}Starting Minikube...${SET}"
 	minikube start --vm-driver=virtualbox --disk-size=5000MB
 	eval $(minikube docker-env)
-	echo "${GREEN}${BOLD}✅ Minikube started${SET}"
-	echo "${YELLOW}${BOLD}Activating addons...${SET}"
-	minikube addons enable dashboard
+	echo "${GREEN}✅ Minikube started${SET}"
+	echo "${YELLOW}Activating addons...${SET}"
+	sleep 3
 	minikube addons enable metrics-server
+	minikube addons enable dashboard
 	minikube addons enable logviewer
-	echo "${GREEN}${BOLD}✅ Addons activated${SET}"
+	echo "${GREEN}✅ Addons activated${SET}"
 fi
 
 # Install Metallb and secret key
-echo "${YELLOW}${BOLD}Installing MetalLB...${SET}"
+echo "${YELLOW}Installing MetalLB...${SET}"
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.3/manifests/namespace.yaml
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.3/manifests/metallb.yaml
 kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
 kubectl apply -f srcs/config/metallb.yaml
 kubectl apply -f srcs/config/kustomization.yaml
-echo "${GREEN}${BOLD}✅ MetalLB installed${SET}"
+echo "${GREEN}✅ MetalLB installed${SET}"
 
 # Docker build
-LIST_SERVICES='wordpress mysql'
+LIST_SERVICES='wordpress mysql phpmyadmin nginx'
 
-echo "${BLUE}${BOLD}Building Docker images...${SET}"
+echo "${BLUE}Building Docker images...${SET}"
 for SERVICE in $LIST_SERVICES
 do
-	echo "🐳 Building $SERVICE..."
-	docker build -t $SERVICE srcs/$SERVICE
+	echo "${YELLOW}🐳 Building $SERVICE..."
+	docker build -t $SERVICE srcs/$SERVICE > /dev/null
 	echo "${GREEN}✅ $SERVICE built${SET}"
 done
 
 # kubernetes build
-echo "${YELLOW}${BOLD}Building kubernetes...${SET}"
+echo "${YELLOW}Building kubernetes...${SET}"
 for SERVICE in $LIST_SERVICES
 do
 	kubectl apply -f srcs/kubernetes/$SERVICE.yaml
@@ -58,17 +60,22 @@ do
 done
 echo
 
-# export MINIKUBE_IP=$(minikube ip)
-#
-# echo ${MINIKUBE_IP}
+export MINIKUBE_IP=$(minikube ip)
 
+echo ${MINIKUBE_IP}
+
+printf "| ${Blue}Wordpress${Default_color}	 | user: admin     | password: admin    | ip: http://"
+	kubectl get svc | grep wordpress-service | cut -d " " -f 11,12,13 | tr -d "\n" | tr -d " "
+	printf ":5050  |\n"
+
+sleep 2
 minikube dashboard
 
 
 
 # verif_dependencies()
 # {
-# 	echo "${YELLOW}${BOLD}Verifying dependencies...${SET}"
+# 	echo "${YELLOW}Verifying dependencies...${SET}"
 # 	if [ "$(VboxManage > /dev/null && echo $?)" == "0" ]
 # 	then
 # 				printf "✅ : VirtualBox installed\n"

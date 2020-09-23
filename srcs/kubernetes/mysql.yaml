@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
       - name: mysql
-        image: alpine_mysql
+        image: mysql
         imagePullPolicy: Never
         env:
         - name: WP_DB_NAME
