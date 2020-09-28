@@ -17,19 +17,19 @@ echo "${GREEN}✅️ Done !${SET}"
 
 
 # Start the cluster and install addons
-if [ $(minikube status | grep -c "Running") == 0 ]
-then
-	echo "${YELLOW}Starting Minikube...${SET}"
-	minikube start --vm-driver=virtualbox --disk-size=5000MB
-	eval $(minikube docker-env)
-	echo "${GREEN}✅ Minikube started${SET}"
-	echo "${YELLOW}Activating addons...${SET}"
-	sleep 3
-	minikube addons enable metrics-server
-	minikube addons enable dashboard
-	minikube addons enable logviewer
-	echo "${GREEN}✅ Addons activated${SET}"
-fi
+# if [ $(minikube status | grep -c "Running") == 0 ]
+# then
+echo "${YELLOW}Starting Minikube...${SET}"
+minikube start --vm-driver=virtualbox --disk-size=5000MB
+eval $(minikube docker-env)
+echo "${GREEN}✅ Minikube started${SET}"
+echo "${YELLOW}Activating addons...${SET}"
+sleep 3
+minikube addons enable metrics-server
+minikube addons enable dashboard
+minikube addons enable logviewer
+echo "${GREEN}✅ Addons activated${SET}"
+# fi
 
 # Install Metallb and secret key
 echo "${YELLOW}Installing MetalLB...${SET}"
