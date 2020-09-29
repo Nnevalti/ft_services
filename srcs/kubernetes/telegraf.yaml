@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: telegraf
-        image: alpine_telegraf
+        image: telegraf
         imagePullPolicy: Never
         livenessProbe:
           exec:

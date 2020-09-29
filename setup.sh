@@ -41,7 +41,7 @@ kubectl apply -f srcs/config/kustomization.yaml
 echo "${GREEN}✅ MetalLB installed${SET}"
 
 # Docker build
-LIST_SERVICES='wordpress mysql phpmyadmin nginx influxdb'
+LIST_SERVICES='ftps grafana nginx mysql wordpress phpmyadmin influxdb telegraf'
 
 echo "${BLUE}Building Docker images...${SET}"
 for SERVICE in $LIST_SERVICES
@@ -64,9 +64,28 @@ export MINIKUBE_IP=$(minikube ip)
 
 echo ${MINIKUBE_IP}
 
+printf "\n🎉 : FT_SERVICES ${Green}READY${Default_color}\n"
+echo " ---------------------------------------------------------------------------------------"
 printf "| ${Blue}Wordpress${Default_color}	 | user: admin     | password: admin    | ip: http://"
-	kubectl get svc | grep wordpress-service | cut -d " " -f 11,12,13 | tr -d "\n" | tr -d " "
-	printf ":5050  |\n"
+kubectl get svc | grep wordpress-service | cut -d " " -f 11,12,13 | tr -d "\n" | tr -d " "
+printf ":5050  |\n"
+echo " ---------------------------------------------------------------------------------------"
+printf "| ${Yellow}PhpMyAdmin${Default_color}     | user: wp_user   | password: password | ip: http://"
+kubectl get svc | grep phpmyadmin-service | cut -d " " -f 10,11,12 | tr -d "\n" | tr -d " "
+printf ":5000  |\n"
+echo " ---------------------------------------------------------------------------------------"
+printf "| ${Green}Ftps${Default_color}           | user: ftps_user | password: password | ip: "
+kubectl get svc | grep ftps-service | cut -d " " -f 15,16,17,18 | tr -d "\n" | tr -d " "
+printf ":21           |\n"
+echo " ---------------------------------------------------------------------------------------"
+printf "| ${Light_red}Grafana${Default_color}        | user: admin     | password: admin    | ip: http://"
+kubectl get svc | grep grafana-service | cut -d " " -f 13,14,15 | tr -d "\n" | tr -d " "
+printf ":3000  |\n"
+echo " ---------------------------------------------------------------------------------------"
+printf "| ${Orange}Nginx${Default_color}          | user: ssh_user  | password: password | ip: https://"
+kubectl get svc | grep nginx-service | cut -d " " -f 15,16,17 | tr -d "\n" | tr -d " "
+printf ":443  |\n"
+echo " ---------------------------------------------------------------------------------------"
 
 sleep 2
 minikube dashboard

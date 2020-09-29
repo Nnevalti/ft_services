@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
       - name: influxdb
-        image: alpine_influxdb
+        image: influxdb
         imagePullPolicy: Never
         env:
         - name: INFLUXDB_NAME
