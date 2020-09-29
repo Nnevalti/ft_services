@@ -1,80 +1,80 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-pv-claim
+  name: influxdb-pv-claim
   namespace: default
   labels:
-    app: mysql-pv-claim
+    app: influxdb-pv-claim
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 500Mi
+      storage: 1Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql
+  name: influxdb
   labels:
-    app: mysql
+    app: influxdb
 spec:
   selector:
     matchLabels:
-      app: mysql
+      app: influxdb
   template:
     metadata:
       labels:
-        app: mysql
+        app: influxdb
     spec:
       containers:
-      - name: mysql
-        image: mysql
+      - name: influxdb
+        image: alpine_influxdb
         imagePullPolicy: Never
         env:
-        - name: WP_DB_NAME
+        - name: INFLUXDB_NAME
           valueFrom:
             secretKeyRef:
               name: k8s-secret
-              key: wp_db_name
-        - name: WP_USER
+              key: influxdb_db_name
+        - name: INFLUXDB_USER
           valueFrom:
             secretKeyRef:
               name: k8s-secret
-              key: wp_user
+              key: influxdb_user
         - name: PASSWORD
           valueFrom:
             secretKeyRef:
               name: k8s-secret
-              key: wp_password
+              key: influxdb_password
         livenessProbe:
           exec:
             command:
             - service
-            - mariadb
+            - influxdb
             - status
-          initialDelaySeconds: 30
+          initialDelaySeconds: 5
           periodSeconds: 3
         ports:
-        - containerPort: 3306
+        - containerPort: 8086
         volumeMounts:
-          - mountPath: /var/lib/mysql
-            name: mysql-persistent-volume
+          - mountPath: /var/lib/influxdb
+            name: influxdb-persistent-volume
       volumes:
-       - name: mysql-persistent-volume
+       - name: influxdb-persistent-volume
          persistentVolumeClaim:
-          claimName: mysql-pv-claim
+          claimName: influxdb-pv-claim
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-service
+  name: influxdb-service
 spec:
   type: ClusterIP
   ports:
-  - name: mysql
-    port: 3306
-    targetPort: 3306
+  - name: influxdb
+    port: 8086
+    targetPort: 8086
     protocol: TCP
   selector:
-    app: mysql
+    app: influxdb

@@ -8,10 +8,15 @@ php7-gd php7-mysqli php7-zlib php7-curl \
 php7-mbstring php7-json php7-session
 
 RUN wget https://wordpress.org/latest.tar.gz \
-&& tar -xvf latest.tar.gz \
-&& rm latest.tar.gz \
-&& mkdir /www \
-&& mv wordpress/ www/
+&& tar -xzvf latest.tar.gz \
+&& rm latest.tar.gz &&\
+		mv wordpress /var/www/html/wordpress && \
+		chown -R www-data:www-data /var/www/html/wordpress/ &&\
+		chmod -R 755 /var/www/html/wordpress/ && \
+		rm var/www/html/index.nginx-debian.html && rm /var/www/html/wordpress/wp-config-sample.php
+
+	//	&& mkdir /www \
+	//	&& mv wordpress/ www/
 
 ADD ./setup.sh 			/srcs/setup.sh
 ADD ./liveness.sh		/srcs/liveness.sh

@@ -41,7 +41,7 @@ kubectl apply -f srcs/config/kustomization.yaml
 echo "${GREEN}✅ MetalLB installed${SET}"
 
 # Docker build
-LIST_SERVICES='wordpress mysql phpmyadmin nginx'
+LIST_SERVICES='wordpress mysql phpmyadmin nginx influxdb'
 
 echo "${BLUE}Building Docker images...${SET}"
 for SERVICE in $LIST_SERVICES
