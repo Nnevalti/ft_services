@@ -6,7 +6,7 @@ type: Opaque
 data:
   ssh_user: c3NoX3VzZXI=
   ssh_password: cGFzc3dvcmQ=
-  wp_db_name: d29yZHByZXNz
+  wp_db: d29yZHByZXNz
   wp_user: d3BfdXNlcg==
   wp_password: cGFzc3dvcmQ=
   influxdb_db_name: aW5mbHV4ZGI=

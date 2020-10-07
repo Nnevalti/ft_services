@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wordpress
+  name: wordpress-deployment
   labels:
     app: wordpress
 spec:
@@ -15,14 +15,14 @@ spec:
     spec:
       containers:
       - name: wordpress
-        image: wordpress
+        image: wordpress_container
         imagePullPolicy: Never
         env:
-        - name: WP_DB_NAME
+        - name: WP_DB
           valueFrom:
             secretKeyRef:
               name: k8s-secret
-              key: wp_db_name
+              key: wp_db
         - name: WP_USER
           valueFrom:
             secretKeyRef:
