@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: phpmyadmin
-        image: phpmyadmin
+        image: phpmyadmin_container
         imagePullPolicy: Never
         env:
         - name: MYSQL_IP

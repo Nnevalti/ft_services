@@ -28,7 +28,7 @@ spec:
               secretKeyRef:
                 name: k8s-secret
                 key: ssh_password
-          - name: WPPORT
+          - name: WP_IP
             value: wordpress-service.default.svc.cluster.local
         livenessProbe:
           exec:

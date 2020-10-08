@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: ftps
-        image: ftps
+        image: ftps_container
         imagePullPolicy: Never
         env:
         - name: USER

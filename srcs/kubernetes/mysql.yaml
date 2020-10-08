@@ -15,7 +15,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql
+  name: mysql-deployment
   labels:
     app: mysql
 spec:
@@ -29,14 +29,14 @@ spec:
     spec:
       containers:
       - name: mysql
-        image: mysql
+        image: mysql_container
         imagePullPolicy: Never
         env:
-        - name: WP_DB_NAME
+        - name: WP_DB
           valueFrom:
             secretKeyRef:
               name: k8s-secret
-              key: wp_db_name
+              key: wp_db
         - name: WP_USER
           valueFrom:
             secretKeyRef:

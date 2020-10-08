@@ -9,4 +9,4 @@ data:
     - name: address-pool-1
       protocol: layer2
       addresses:
-      - 192.168.99.2-192.168.99.6
+      - 192.168.99.42-192.168.99.46
