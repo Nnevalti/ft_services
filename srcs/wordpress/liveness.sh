@@ -1,10 +1,10 @@
-#! /bin/ash
-ps > liveness.tmp
-cat liveness.tmp | grep "php -S" > liveness2.tmp
-return=$(cat liveness2.tmp | wc -l)
-if [ $return = 1 ]
-then
-    return 0
+#!/bin/ash
+service nginx status
+return_nginx=$?
+service sshd status
+return_sshd=$?
+if [ $return_nginx = 0 ] && [ $return_sshd = 0 ]; then
+	exit 0
 else
-    return 1
+	exit 1
 fi
