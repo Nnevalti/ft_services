@@ -6,7 +6,7 @@ metadata:
 data:
   config: |
     address-pools:
-    - name: address-pool-1
+    - name: ip_address
       protocol: layer2
       addresses:
-      - 192.168.99.42-192.168.99.46
+      - ${CLUSTER_EXT_IP}/32

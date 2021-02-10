@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx_image
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 22
+        - containerPort: 80
+        - containerPort: 443
+        env:
+        - name: SSH_USER
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: ssh-user
+        - name: SSH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: ssh-password
+        - name: WP_IP
+          valueFrom:
+            configMapKeyRef:
+              name: k8s-configmap
+              key: wp_ip
+        - name: WP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: k8s-configmap
+              key: wp_port
+        - name: PHPMA_IP
+          valueFrom:
+            configMapKeyRef:
+              name: k8s-configmap
+              key: phpma_ip
+        - name: PHPMA_PORT
+          value:
+            configMapKeyRef:
+              name: k8s-configmap
+              key: phpma_port
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+   annotations:
+    metallb.universe.tf/allow-shared-ip: "sharing key"
+spec:
+  type: LoadBalancer
+  loadBalancerIP: ${CLUSTER_EXTERNAL_IP}
+  selector:
+    app: nginx
+  ports:
+  - name: ssh
+    protocol: TCP
+    port: 22
+    targetPort: 22
+    nodePort: 22
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 80
+  - name: https
+    protocol: TCP
+    port: 443
+    targetPort: 443
+    nodePort: 443

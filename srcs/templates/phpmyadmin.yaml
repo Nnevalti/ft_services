@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phpmyadmin-deployment
+  labels:
+    app: phpmyadmin
+spec:
+  selector:
+    matchLabels:
+      app: phpmyadmin
+  template:
+    metadata:
+      labels:
+        app: phpmyadmin
+    spec:
+      containers:
+      - name: phpmyadmin
+        image: phpmyadmin_container
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000
+        env:
+        - name: WP_DB
+          valueFrom:
+            secretKeyRef:
+              name: k8s-configmap
+              key: wp_db
+        - name: WP_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: wp_db_name
+        - name: WP_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: mysql_db_user
+        - name: WP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: mysql_db_passwd
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: phpmyadmin-service
+  annotations:
+    metallb.universe.tf/allow-shared-ip: "sharing key"
+spec:
+  type: LoadBalancer
+  loadBalancerIP: ${CLUSTER_EXTERNAL_IP}
+  selector:
+    app: phpmyadmin
+  ports:
+  - protocol: TCP
+    port: 5000
+    targetPort: 5000
+    nodePort: 5000

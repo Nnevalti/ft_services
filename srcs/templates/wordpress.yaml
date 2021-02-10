@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress-deployment
+  labels:
+    app: wordpress
+spec:
+  selector:
+    matchLabels:
+      app: wordpress
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+      - name: wordpress
+        image: wordpress_container
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5050
+        env:
+        - name: WP_IP
+          value: $(CLUSTER_IP)
+        - name: WP_PORT
+          value: "5050"
+        - name: WP_DB
+          valueFrom:
+            secretKeyRef:
+              name: k8s-configmap
+              key: wp_db
+        - name: WP_TABLE_PREFIX
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: wp_table_prefix
+        - name: WP_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: wp_db_name
+        - name: WP_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: mysql_db_user
+        - name: WP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: mysql_db_passwd
+        volumeMounts:
+        - name: wp-volume
+          mountPath: /usr/share/webapps/wordpress/wp-content/
+      volumes:
+      - name: wp-volume
+        hostPath:
+          path: /tmp/wp_vol
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress-service
+  annotations:
+    metallb.universe.tf/allow-shared-ip: "sharing key"
+spec:
+ type: LoadBalancer
+ loadBalancerIP: ${CLUSTER_IP}
+ selector:
+    app: wordpress
+  ports:
+  - protocol: TCP
+    port: 5050
+    targetPort: 5050
+    nodePort: 5050

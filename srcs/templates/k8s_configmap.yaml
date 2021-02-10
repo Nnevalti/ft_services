@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8s_configmap
+data:
+  wp_ip: "${CLUSTER_EXTERNAL_IP}"
+  wp_port: "5050"
+  phpma_ip: phpma-service.default
+  phpma_port: "5000"
+  wp_db: mysql-service
