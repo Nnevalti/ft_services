@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: phpmyadmin-svc
+  annotations:
+    metallb.universe.tf/allow-shared-ip: "sharing key"
+  labels:
+    app: phpmyadmin-svc
+spec:
+  selector:
+    app: phpma-pod
+  type: LoadBalancer
+  loadBalancerIP: ${CLUSTER_IP}
+  ports:
+  - port: 5000
+    name: phpmyadmin-svc-port
+    targetPort: phpma-cont-port
+    protocol: TCP
+    nodePort: 5000
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phpmyadmin
+  labels:
+    app: phpma-deployment
+spec:
+  selector:
+    matchLabels:
+      app: phpma-pod
+  template:
+    metadata:
+      labels:
+        app: phpma-pod
+    spec:
+      containers:
+      - name: phpmyadmin
+        image: phpmyadmin_image
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000
+          name: phpma-cont-port
+        env:
+        - name: __DB_HOST__
+          valueFrom:
+            configMapKeyRef:
+              name: wp-phpma-configmap
+              key: wordpress-db-host
+        - name: __DB_NAME__
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: db-name
+        - name: __DB_USERNAME__
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: mysql-db-user
+        - name: __DB_PASSWORD__
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: mysql-db-passwd

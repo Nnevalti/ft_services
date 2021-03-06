@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-svc
+  annotations:
+    metallb.universe.tf/allow-shared-ip: "sharing key"
+  labels:
+    app: grafana-svc
+spec:
+  selector:
+    app: grafana-pod
+  type: LoadBalancer
+  loadBalancerIP: 172.17.0.2
+  ports:
+  - port: 3000
+    name: graf-svc-port
+    targetPort: graf-cont-port
+    protocol: TCP
+    nodePort: 3000
+
+--- 
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  labels:
+    app: grafana-deployment
+spec:
+  selector:
+    matchLabels:
+      app: grafana-pod
+  template:
+    metadata:
+      labels:
+        app: grafana-pod
+    spec:
+      containers:
+      - name: grafana
+        image: grafana_image
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 3000
+          name: graf-cont-port
+        envFrom:
+          - secretRef:
+              name: k8s-secret
+        envFrom:
+          - secretRef:
+              name: k8s-secret
+        envFrom:
+          - configMapRef:
+              name: grafana-configmap

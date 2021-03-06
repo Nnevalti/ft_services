@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telegraf
+  labels:
+    app: telegraf-deployment
+spec:
+  selector:
+    matchLabels:
+      app: telegraf-pod
+  template:
+    metadata:
+      labels:
+        app: telegraf-pod
+    spec:
+      serviceAccountName: telegraf-account
+      containers:
+      - name: telegraf
+        image: telegraf_image
+        imagePullPolicy: Never
+        envFrom:
+          - secretRef:
+              name: k8s-secret
+        envFrom:
+          - configMapRef:
+              name: telegraf-configmap
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: telegraf-account
+  labels:
+    app: telegraf-account
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: telegraf-account
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: telegraf-account
+  namespace: default

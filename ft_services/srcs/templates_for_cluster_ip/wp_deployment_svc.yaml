@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wp-svc
+  annotations:
+    metallb.universe.tf/allow-shared-ip: "sharing key"
+  labels:
+    app: wp-svc
+spec:
+  selector:
+    app: wp-pod
+  type: LoadBalancer
+  loadBalancerIP: ${CLUSTER_IP}
+  ports:
+  - port: 5050
+    name: wp-svc-port
+    targetPort: wp-cont-port
+    protocol: TCP
+    nodePort: 5050
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+  labels:
+    app: wp-deployment
+spec:
+  selector:
+    matchLabels:
+      app: wp-pod
+  template:
+    metadata:
+      labels:
+        app: wp-pod
+    spec:
+      containers:
+      - name: wordpress
+        image: wordpress_image
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5050
+          name: wp-cont-port
+        env:
+        - name: __WORDPRESS_SVC_IP__
+          value: ${CLUSTER_IP}
+        - name: __WORDPRESS_SVC_PORT__
+          value: "5050"
+        - name: __DB_HOST__
+          valueFrom:
+            configMapKeyRef:
+              name: wp-phpma-configmap
+              key: wordpress-db-host
+        - name: __DB_TABLE_PREFIX__
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: db-table-prefix
+        - name: __DB_NAME__
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: db-name
+        - name: __DB_USER__
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: mysql-db-user
+        - name: __DB_PASSWORD__
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: mysql-db-passwd
+        volumeMounts:
+        - name: wp-volume
+          mountPath: /usr/share/webapps/wordpress/wp-content/
+      volumes:
+      - name: wp-volume
+        hostPath:
+          path: /tmp/wp_vol

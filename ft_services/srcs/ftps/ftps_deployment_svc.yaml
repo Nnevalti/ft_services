@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ftps-svc
+  annotations:
+    metallb.universe.tf/allow-shared-ip: "sharing key"
+  labels:
+    app: ftps-svc
+spec:
+  selector:
+    app: ftps-pod
+  type: LoadBalancer
+  loadBalancerIP: 172.17.0.2
+  ports:
+  - port: 21
+    name: ftps-svc-port
+    targetPort: ftps-cont-port
+    protocol: TCP
+    nodePort: 21
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ftps
+  labels:
+    app: ftps-deployment
+spec:
+  selector:
+    matchLabels:
+      app: ftps-pod
+  template:
+    metadata:
+      labels:
+        app: ftps-pod
+    spec:
+      containers:
+      - name: ftps
+        image: ftps_image
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 21
+          name: ftps-cont-port
+        env:
+        - name: __FTP_USER__
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: ftps-user
+        - name: __FTP_PASSWORD__
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: ftps-password
+        - name: __CLUSTER_IP__
+          value: 172.17.0.2
+        volumeMounts:
+        - name: ftps-volume
+          mountPath: /home/
+      volumes:
+      - name: ftps-volume
+        persistentVolumeClaim:
+          claimName: ftps-pv-claim
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ftps-pv-claim
+  labels:
+    app: ftps-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Mi

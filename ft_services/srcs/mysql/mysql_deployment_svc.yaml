@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: mysql-deployment
+spec:
+  selector:
+    matchLabels:
+      app: mysql-pod
+  template:
+    metadata:
+      labels:
+        app: mysql-pod
+    spec:
+      containers:
+      - name: mysql
+        image: mysql_image
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 3306
+          name: mysql-cont-port
+        env:
+        - name: __MYSQL_DB_NAME__
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: db-name
+        - name: __MYSQL_DB_USER__
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: mysql-db-user
+        - name: __MYSQL_DB_PASSWD__
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: mysql-db-passwd
+        - name: __MYSQL_ADMIN__
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: mysql-admin
+        - name: __MYSQL_ADMIN_PASSWD__
+          valueFrom:
+            secretKeyRef:
+              name: k8s-secret
+              key: mysql-admin-password
+        volumeMounts:
+        - name: mysql-volume
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-volume
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim
+  labels:
+    app: mysql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-svc
+  labels:
+    app: mysql-svc
+spec:
+  selector:
+    app: mysql-pod
+  ports:
+  - port: 3306
+    targetPort: mysql-cont-port
+    protocol: TCP
+    name: mysql-svc-port
