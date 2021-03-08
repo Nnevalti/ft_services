@@ -19,10 +19,10 @@ ckeck_list_and_names()
 		kubectl get pods | grep $SERVICE- 2>&1 > /dev/null
 		if [ $? -ne 0 ]
 		then
-			echo "\033[31mERROR: service  $SERVICE is missing or was not named correctly\033[0m"	
+			echo "${RED}ERROR: service  $SERVICE is missing or was not named correctly${SET}"	
 			exit
 		else
-			echo "\033[32m $SERVICE  ✅ \033[m"
+			echo "${GREEN} $SERVICE  ✅ ${SET}"
 		fi
 	done
 
@@ -32,9 +32,9 @@ ckeck_list_and_names()
 		RUNNING=`kubectl get pods | grep $SERVICE | tr -s ' ' | cut -d ' ' -f 3`
 		if [ "$RUNNING" = "Running" ]
 		then
-			echo "\033[32m $SERVICE is Running  ✅ \033[m"
+			echo "${GREEN} $SERVICE is Running  ✅ ${SET}"
 		else
-			echo "\033[31mERROR: $SERVICE is not Running \033[m"
+			echo "${RED}ERROR: $SERVICE is not Running ${SET}"
 			exit
 		fi
 	done
@@ -49,9 +49,9 @@ check_no_restarts_yet()
 		RESTARTS=`kubectl get pods | grep $SERVICE | tr -s ' ' | cut -d ' ' -f 4`
 		if [ $RESTARTS -eq 0 ]
 		then
-			echo "\033[32m $SERVICE: 0 RESTARTS ✅ \033[m"
+			echo "${GREEN} $SERVICE: 0 RESTARTS ✅ ${SET}"
 		else
-			echo "\033[31m ERROR: $SERVICE restarted $RESTARTS time(s) \033[m"
+			echo "${RED} ERROR: $SERVICE restarted $RESTARTS time(s) ${SET}"
 			#exit
 		fi
 	done
@@ -97,7 +97,7 @@ ask_to_open_new_terminal()
 { 
 	echo "\n5) Wait and check in another terminal windowsXP if there is any containers/pods that cannot restart:"
 	echo -n "\nuse the command:"
-	echo "\033[32m kubectl get pods --watch \033[0m"
+	echo "${GREEN} kubectl get pods --watch ${SET}"
 	echo "\ngive them a good minute or two: be fair..."
 
 	echo -n "\nPress 'ENTER' when you are ready to keep on."
@@ -109,9 +109,9 @@ display_for_correction()
 	clear;
 	echo "NOW its time to really check if the services are working correctly..."
 
-	IP="\033[38;5;187m$1\033[0m"
+	IP="\033[38;5;187m$1${SET}"
 	echo "\ngenerating links for the given cluster IP: $IP"
-	echo "\n\n \033[4m\033[38;5;255m CORRECTION LINKS: \033[0m\n"
+	echo "\n\n \033[4m\033[38;5;255m CORRECTION LINKS: ${SET}\n"
 	echo " - wordpress:                     http://$IP:5050"
 	echo " - phpmyadmin:                     http://$IP:5000"
 	echo " - grafana:                        http://$IP:3000"

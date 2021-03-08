@@ -10,7 +10,7 @@ spec:
   selector:
     app: ftps-pod
   type: LoadBalancer
-  loadBalancerIP: ${CLUSTER_IP}
+  loadBalancerIP: 172.17.0.2
   ports:
   - port: 21
     name: ftps-svc-port
@@ -43,18 +43,18 @@ spec:
         - containerPort: 21
           name: ftps-cont-port
         env:
-        - name: __FTP_USER__
+        - name: __FTPS_USER__
           valueFrom:
             secretKeyRef:
               name: k8s-secret
               key: ftps-user
-        - name: __FTP_PASSWORD__
+        - name: __FTPS_PASSWORD__
           valueFrom:
             secretKeyRef:
               name: k8s-secret
               key: ftps-password
         - name: __CLUSTER_IP__
-          value: ${CLUSTER_IP}
+          value: 172.17.0.2
         volumeMounts:
         - name: ftps-volume
           mountPath: /home/
