@@ -1,9 +1,7 @@
 FROM alpine:latest
 
 RUN apk update \
-	&& apk add mariadb \
-	&& apk add mariadb-client \
-	&& rm -rf /var/cache/apk/*
+	&& apk add mariadb mariadb-client --no-cache
 
 ENV __MYSQL_DB_NAME__=wordpress
 ENV __MYSQL_DB_USER__=user

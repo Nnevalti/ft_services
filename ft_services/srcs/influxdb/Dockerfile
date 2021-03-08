@@ -2,8 +2,7 @@
 FROM alpine:latest
 
 RUN apk update \
-	&& apk add influxdb \
-	&& rm -rf /var/cache/apk/*
+	&& apk add influxdb --no-cache
 
 COPY srcs/init.sh /usr/sbin
 

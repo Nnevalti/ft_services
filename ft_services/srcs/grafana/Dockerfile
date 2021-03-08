@@ -4,9 +4,8 @@ FROM alpine:latest
 WORKDIR /usr/share/grafana
 
 RUN apk update \
-    && apk add grafana --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ \
-	&& mkdir /usr/share/grafana/dashboards \
-	&& rm -rf /var/cache/apk/*
+  && apk add grafana --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --no-cache \
+	&& mkdir /usr/share/grafana/dashboards
 
 EXPOSE 3000
 
@@ -28,4 +27,3 @@ ENV __INFLUXDB_URL__=http://172.17.0.2:8086
 
 ENTRYPOINT [ "/usr/sbin/grafana-server", "--config", "conf/grafana.ini" ]
 #CMD exec /bin/sh -c "trap : TERM INT; sleep 9999999999d & wait"
-

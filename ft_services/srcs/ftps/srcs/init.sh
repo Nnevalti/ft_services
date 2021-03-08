@@ -11,4 +11,6 @@ echo "$__FTPS_USER__" >/etc/vsftpd/chroot.list
 touch /var/log/vsftpd.log
 tail -f /var/log/vsftpd.log &
 
-usr/sbin/vsftpd /etc/vsftpd/vsftpd.conf
+echo "test file." > /home/user/test.txt
+
+/usr/sbin/vsftpd /etc/vsftpd/vsftpd.conf

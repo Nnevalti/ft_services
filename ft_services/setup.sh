@@ -13,7 +13,7 @@ cluster_ip()
 	# The command "docker network inspect bridge" give us information about docker0 in a JSON format
 	# The option format specify that we want at the index IPAM.Config[0] the value of the Gateway. ex : "172.17.0.1"
 	# command cut RTFM
-	echo -n "\n${GREEN}Finding a valid cluster IP:"
+	echo "\n${YELLOW}Finding a valid cluster IP...${SET}"
 	HOST=`docker network inspect bridge --format='{{(index .IPAM.Config 0).Gateway}}' | cut -d . -f 4`
 
 	NETWORK=`docker network inspect bridge --format='{{(index .IPAM.Config 0).Gateway}}' | cut -d . -f 1-2`
@@ -110,15 +110,15 @@ build_docker()
 	echo "${YELLOW}Building Docker images...${SET}"
 	for SERVICE in $LIST_SERVICES
 	do
-		echo -n "${YELLOW}🐳 ${SERVICE} image "
+		echo -n "🐳 ${SERVICE} image "
 		docker build -t "$SERVICE"_image srcs/$SERVICE > /dev/null
 		if [ $? != 0 ]
 		then
-			echo "❌"
-			echo "${RED}Building for $SERVICE failed...${SET}"
+			echo "${RED}❌"
+			echo " Building for $SERVICE failed...${SET}\n"
 			exit
 		fi
-		echo "✅"
+		echo "${GREEN}✅${SET}"
 	done
 }
 
@@ -163,23 +163,17 @@ build_kubernetes()
 	fi
 }
 
-display_for_correction()
+ft_services_link()
 {
 	clear;
-	echo "\n${GREEN}=====================\n"\
-		"	   BUILD SUCCESSFUL  \n" \
-		"	=====================${SET}"
-	echo "\nyour cluster IP is: \033[38;5;187m$CLUSTER_IP \033m"
-	CLUSTER_IP="\033[38;5;187m$CLUSTER_IP${SET}"
-	echo "\n\n \033[4m\033[38;5;255m CORRECTION LINKS: ${SET}\n"
-	echo " - wordpress:                     http://$CLUSTER_IP:5050"
-	echo " - phpmyadmin:                     http://$CLUSTER_IP:5000"
-	echo " - grafana:                        http://$CLUSTER_IP:3000"
-	echo " - nginx:"
-	echo "    - with redirect to https:      http://$CLUSTER_IP or $CLUSTER_IP"
-	echo "    - https:                       https://$CLUSTER_IP"
-	echo "    - reverse proxy to phpma:      https://$CLUSTER_IP:443/phpmyadmin"
-	echo "    - temporary redirect to wp:    https://$CLUSTER_IP:443/wordpress\n"
+	echo "Cluster IP : $CLUSTER_IP"
+	echo "Wordpress link: http://$CLUSTER_IP:5050"
+	echo "Phpmyadmin:  http://$CLUSTER_IP:5000"
+	echo "Grafana:     http://$CLUSTER_IP:3000"
+	echo "Nginx:       https://$CLUSTER_IP or http://$CLUSTER_IP or $CLUSTER_IP"
+	echo "FTPS : \"sudo apt install filezilla\" to test"
+	echo "  - IP : $CLUSTER_IP / PORT : 21"
+	echo "  - ID: user / Password : password"
 }
 
 # List of services
@@ -194,5 +188,5 @@ create_secrets;
 create_kubernetes_configmaps;
 build_kubernetes;
 
-display_for_correction;
+ft_services_link;
 minikube dashboard

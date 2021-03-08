@@ -12,11 +12,21 @@ spec:
   type: LoadBalancer
   loadBalancerIP: ${CLUSTER_IP}
   ports:
+  - port: 20
+    name: ftps-svc-port1
+    targetPort: ftps-cont-port1
+    protocol: TCP
+    nodePort: 20
   - port: 21
-    name: ftps-svc-port
-    targetPort: ftps-cont-port
+    name: ftps-svc-port2
+    targetPort: ftps-cont-port2
     protocol: TCP
     nodePort: 21
+  - port: 30000
+    name: ftps-svc-port3
+    targetPort: ftps-cont-port3
+    protocol: TCP
+    nodePort: 30000
 
 ---
 
@@ -40,8 +50,12 @@ spec:
         image: ftps_image
         imagePullPolicy: Never
         ports:
+        - containerPort: 20
+          name: ftps-cont-port1
         - containerPort: 21
-          name: ftps-cont-port
+          name: ftps-cont-port2
+        - containerPort: 30000
+          name: ftps-cont-port3
         env:
         - name: __FTPS_USER__
           valueFrom:

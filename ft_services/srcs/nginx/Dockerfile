@@ -1,12 +1,9 @@
 FROM alpine:latest
 
 RUN apk update \
-	&& apk add nginx &&  mkdir -p /run/nginx \
-	&& mkdir -p /var/www/my_server \
-	&& apk add openssl \
-	&& apk add openssh-server \
-	&& apk add gettext \
-	&& rm -rf /var/cache/apk/*
+	&& apk add nginx openssl openssh-server gettext --no-cache \
+	&& mkdir -p /run/nginx \
+	&& mkdir -p /var/www/my_server
 
 ENV __SSH_USER__=user
 ENV	__SSH_PASSWORD__=password
